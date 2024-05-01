@@ -6,11 +6,11 @@ from types import SimpleNamespace
 from typing import Any
 
 import gradio as gr
-from modules.ui_components import InputAccordion
 
 from adetailer import AFTER_DETAILER, __version__
 from adetailer.args import ALL_ARGS, MASK_MERGE_INVERT
 from controlnet_ext import controlnet_exists, controlnet_type, get_cn_models
+from modules.ui_components import InputAccordion
 
 if controlnet_type == "forge":
     from lib_controlnet import global_state
@@ -124,7 +124,9 @@ def adui(
     infotext_fields = []
     eid = partial(elem_id, n=0, is_img2img=is_img2img)
 
-    with InputAccordion(AFTER_DETAILER, label="ADetailer", open=False, elem_id=eid("ad_enable")) as ad_enable:
+    with InputAccordion(
+        AFTER_DETAILER, label="ADetailer", open=False, elem_id=eid("ad_enable")
+    ) as ad_enable:
         gr.Markdown(
             f"v{__version__}",
             elem_id=eid("ad_version"),
