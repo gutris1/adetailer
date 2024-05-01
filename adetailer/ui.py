@@ -6,6 +6,7 @@ from types import SimpleNamespace
 from typing import Any
 
 import gradio as gr
+from modules.ui_components import InputAccordion
 
 from adetailer import AFTER_DETAILER, __version__
 from adetailer.args import ALL_ARGS, MASK_MERGE_INVERT
@@ -123,29 +124,19 @@ def adui(
     infotext_fields = []
     eid = partial(elem_id, n=0, is_img2img=is_img2img)
 
-    with gr.Accordion(AFTER_DETAILER, open=False, elem_id=eid("ad_main_accordion")):
-        with gr.Row():
-            with gr.Column(scale=6):
-                ad_enable = gr.Checkbox(
-                    label="Enable ADetailer",
-                    value=False,
-                    visible=True,
-                    elem_id=eid("ad_enable"),
-                )
+    with InputAccordion(AFTER_DETAILER, label="ADetailer", open=False, elem_id=eid("ad_enable")) as ad_enable:
+        gr.Markdown(
+            f"v{__version__}",
+            elem_id=eid("ad_version"),
+        )
 
-            with gr.Column(scale=6):
-                ad_skip_img2img = gr.Checkbox(
-                    label="Skip img2img",
-                    value=False,
-                    visible=is_img2img,
-                    elem_id=eid("ad_skip_img2img"),
-                )
-
-            with gr.Column(scale=1, min_width=180):
-                gr.Markdown(
-                    f"v{__version__}",
-                    elem_id=eid("ad_version"),
-                )
+        with gr.Column(scale=6):
+            ad_skip_img2img = gr.Checkbox(
+                label="Skip img2img",
+                value=False,
+                visible=is_img2img,
+                elem_id=eid("ad_skip_img2img"),
+            )
 
         infotext_fields.append((ad_enable, "ADetailer enable"))
         infotext_fields.append((ad_skip_img2img, "ADetailer skip img2img"))
