@@ -10,8 +10,15 @@ import gradio as gr
 from adetailer import AFTER_DETAILER, __version__
 from adetailer.args import ALL_ARGS, MASK_MERGE_INVERT
 from controlnet_ext import controlnet_exists, controlnet_type, get_cn_models
-from modules.ui_components import InputAccordion
 
+
+try:
+    from modules.ui_components import InputAccordion
+    _InputAccordion = True
+except ImportError:
+    _InputAccordion = False
+    
+    
 if controlnet_type == "forge":
     from lib_controlnet import global_state
 
@@ -114,7 +121,6 @@ def elem_id(item_id: str, n: int, is_img2img: bool) -> str:
 def state_init(w: Widgets) -> dict[str, Any]:
     return {attr: getattr(w, attr).value for attr in ALL_ARGS.attrs}
 
-
 def adui(
     num_models: int,
     is_img2img: bool,
@@ -123,37 +129,83 @@ def adui(
     states = []
     infotext_fields = []
     eid = partial(elem_id, n=0, is_img2img=is_img2img)
-
-    with InputAccordion(
-        AFTER_DETAILER, label="ADetailer", open=False, elem_id=eid("ad_enable")
-    ) as ad_enable:
-        gr.Markdown(
-            f"v{__version__}",
-            elem_id=eid("ad_version"),
-        )
-
-        with gr.Column(scale=6):
-            ad_skip_img2img = gr.Checkbox(
-                label="Skip img2img",
-                value=False,
-                visible=is_img2img,
-                elem_id=eid("ad_skip_img2img"),
+    
+    if _InputAccordion:
+        with InputAccordion(
+          AFTER_DETAILER, label="ADetailer ", elem_id=eid("ad_enable")
+        ) as ad_enable:
+          # Label "ADetailer " with whitespace to prevent the InputAccordion from being opened and enabled at the beginning.
+          
+            gr.Markdown(
+                f"v{__version__}",
+                elem_id=eid("ad_version"),
             )
 
-        infotext_fields.append((ad_enable, "ADetailer enable"))
-        infotext_fields.append((ad_skip_img2img, "ADetailer skip img2img"))
+            with gr.Column(scale=6):
+                ad_skip_img2img = gr.Checkbox(
+                    label="Skip img2img",
+                    value=False,
+                    visible=is_img2img,
+                    elem_id=eid("ad_skip_img2img"),
+                )
 
-        with gr.Group(), gr.Tabs():
-            for n in range(num_models):
-                with gr.Tab(ordinal(n + 1)):
-                    state, infofields = one_ui_group(
-                        n=n,
-                        is_img2img=is_img2img,
-                        webui_info=webui_info,
+            infotext_fields.append((ad_enable, "ADetailer enable"))
+            infotext_fields.append((ad_skip_img2img, "ADetailer skip img2img"))
+
+            with gr.Group(), gr.Tabs():
+                for n in range(num_models):
+                    with gr.Tab(ordinal(n + 1)):
+                        state, infofields = one_ui_group(
+                            n=n,
+                            is_img2img=is_img2img,
+                            webui_info=webui_info,
+                        )
+
+                    states.append(state)
+                    infotext_fields.extend(infofields)
+                    
+    else:
+        with gr.Accordion(
+          AFTER_DETAILER, open=False, elem_id=eid("ad_main_accordion")
+        ) as accordion:
+          
+            with gr.Row():
+                with gr.Column(scale=6):
+                    ad_enable = gr.Checkbox(
+                        label="Enable ADetailer",
+                        value=False,
+                        visible=True,
+                        elem_id=eid("ad_enable"),
                     )
 
-                states.append(state)
-                infotext_fields.extend(infofields)
+                with gr.Column(scale=6):
+                    ad_skip_img2img = gr.Checkbox(
+                        label="Skip img2img",
+                        value=False,
+                        visible=is_img2img,
+                        elem_id=eid("ad_skip_img2img"),
+                    )
+
+                with gr.Column(scale=1, min_width=180):
+                    gr.Markdown(
+                        f"v{__version__}",
+                        elem_id=eid("ad_version"),
+                    )
+
+            infotext_fields.append((ad_enable, "ADetailer enable"))
+            infotext_fields.append((ad_skip_img2img, "ADetailer skip img2img"))
+
+            with gr.Group(), gr.Tabs():
+                for n in range(num_models):
+                    with gr.Tab(ordinal(n + 1)):
+                        state, infofields = one_ui_group(
+                            n=n,
+                            is_img2img=is_img2img,
+                            webui_info=webui_info,
+                        )
+
+                    states.append(state)
+                    infotext_fields.extend(infofields)
 
     # components: [bool, dict, dict, ...]
     components = [ad_enable, ad_skip_img2img, *states]
