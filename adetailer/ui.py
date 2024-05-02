@@ -11,14 +11,14 @@ from adetailer import AFTER_DETAILER, __version__
 from adetailer.args import ALL_ARGS, MASK_MERGE_INVERT
 from controlnet_ext import controlnet_exists, controlnet_type, get_cn_models
 
+
 try:
     from modules.ui_components import InputAccordion
-
     _InputAccordion = True
 except ImportError:
     _InputAccordion = False
-
-
+    
+    
 if controlnet_type == "forge":
     from lib_controlnet import global_state
 
@@ -121,7 +121,6 @@ def elem_id(item_id: str, n: int, is_img2img: bool) -> str:
 def state_init(w: Widgets) -> dict[str, Any]:
     return {attr: getattr(w, attr).value for attr in ALL_ARGS.attrs}
 
-
 def adui(
     num_models: int,
     is_img2img: bool,
@@ -130,13 +129,13 @@ def adui(
     states = []
     infotext_fields = []
     eid = partial(elem_id, n=0, is_img2img=is_img2img)
-
+    
     if _InputAccordion:
         with InputAccordion(
             AFTER_DETAILER, label="ADetailer ", elem_id=eid("ad_enable")
         ) as ad_enable:
-            # Label "ADetailer " with whitespace to prevent the InputAccordion from being opened and enabled at the beginning.
-
+          # Label "ADetailer " with whitespace to prevent the InputAccordion from being opened and enabled at the beginning.
+          
             gr.Markdown(
                 f"v{__version__}",
                 elem_id=eid("ad_version"),
@@ -164,11 +163,9 @@ def adui(
 
                     states.append(state)
                     infotext_fields.extend(infofields)
-
+                    
     else:
-        with gr.Accordion(
-            AFTER_DETAILER, open=False, elem_id=eid("ad_main_accordion")
-        ) as accordion:
+        with gr.Accordion(AFTER_DETAILER, open=False, elem_id=eid("ad_main_accordion")):
             with gr.Row():
                 with gr.Column(scale=6):
                     ad_enable = gr.Checkbox(
