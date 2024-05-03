@@ -133,9 +133,8 @@ def adui(
 
     if _InputAccordion:
         with InputAccordion(
-            AFTER_DETAILER, label="ADetailer ", elem_id=eid("ad_enable")
+            False, label=AFTER_DETAILER, elem_id=eid("ad_enable")
         ) as ad_enable:
-            # Label "ADetailer " with whitespace to prevent the InputAccordion from being opened and enabled at the beginning.
 
             gr.Markdown(
                 f"v{__version__}",
