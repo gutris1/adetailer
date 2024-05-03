@@ -135,7 +135,6 @@ def adui(
         with InputAccordion(
             False, label=AFTER_DETAILER, elem_id=eid("ad_enable")
         ) as ad_enable:
-
             gr.Markdown(
                 f"v{__version__}",
                 elem_id=eid("ad_version"),
